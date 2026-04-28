@@ -1,0 +1,930 @@
+
+ 5770WDS V7R5M0  220415 LN  IBM ILE COBOL                 VZCOBOL/STAUDR2I         XASSIST    04/24/26 11:35:09        Page      1
+
+Command  . . . . . . . . . . . . . . . :   CRTBNDCBL
+
+Actual Values:
+
+  Program  . . . . . . . . . . . . . . :   STAUDR2I
+    Library  . . . . . . . . . . . . . :     VZCOBOL
+  Source file  . . . . . . . . . . . . :   QCBLLESRC
+    Library  . . . . . . . . . . . . . :     VZCOBOL
+    CCSID  . . . . . . . . . . . . . . :   870
+  Source member  . . . . . . . . . . . :   STAUDR2I       11/27/17 15:10:14
+  Text 'description' . . . . . . . . . :   Údržba stavů - strukt. obr. bez překryvů - INDARA
+
+Command Options:
+
+  Program  . . . . . . . . . . . . . . :   STAUDR2I
+    Library  . . . . . . . . . . . . . :     VZCOBOL
+  Source file  . . . . . . . . . . . . :   QCBLLESRC
+    Library  . . . . . . . . . . . . . :     VZCOBOL
+  Source member  . . . . . . . . . . . :   STAUDR2I
+  Output . . . . . . . . . . . . . . . :   *PRINT
+  Generation severity level  . . . . . :   30
+  Text 'description' . . . . . . . . . :   *SRCMBRTXT
+  Compiler options . . . . . . . . . . :   *NONE
+  Conversion options . . . . . . . . . :   *NONE
+  Message limit:
+    Number of messages . . . . . . . . :   *NOMAX
+    Message limit severity . . . . . . :   30
+  Debug view option  . . . . . . . . . :
+    Debug view . . . . . . . . . . . . :   *ALL
+    Compress listing view  . . . . . . :   *NOCOMPRESSDBG
+  Debug encryption key  . . . . .  . . :   *NONE
+  Optimize level . . . . . . . . . . . :   *NONE
+  FIPS flagging  . . . . . . . . . . . :   *NOFIPS *NOOBSOLETE
+  Extended display options . . . . . . :   *NONE
+  Flagging severity  . . . . . . . . . :   0
+  Replace program  . . . . . . . . . . :   *YES
+  Simple program . . . . . . . . . . . :   *YES
+  Authority  . . . . . . . . . . . . . :   *LIBCRTAUT
+  Link literal . . . . . . . . . . . . :   *PGM
+  Target release . . . . . . . . . . . :   *CURRENT
+  User profile . . . . . . . . . . . . :   *USER
+  Sort sequence  . . . . . . . . . . . :   *HEX
+    Library  . . . . . . . . . . . . . :
+  Language identifier  . . . . . . . . :   *JOBRUN
+  Enable performance collection:
+    Collection level . . . . . . . . . :   *PEP
+  Binding directory  . . . . . . . . . :   *NONE
+    Library  . . . . . . . . . . . . . :
+  Storage model  . . . . . . . . . . . :   *SNGLVL
+  Activation group . . . . . . . . . . :   *STGMDL
+  Profiling data . . . . . . . . . . . :   *NOCOL
+  Coded character set ID . . . . . . . :   *JOBRUN
+  National coded character set ID  . . :   13488
+  Arithmetic mode. . . . . . . . . . . :   *NOEXTEND
+  Padding character:
+    Single byte to national  . . . . . :   NX"0020"
+    Double byte to national  . . . . . :   NX"3000"
+    National to national . . . . . . . :   NX"3000"
+  Include directory  . . . . . . . . . :   *NONE
+  Generate program information . . . . :   *NO
+  Define names . . . . . . . . . . . . :   *NONE
+  TARGET CODED CHARACTER SET ID  . . . :   *SRC
+  Compiler . . . . . . . . . . . . . . :   IBM ILE COBOL
+
+ 5770WDS V7R5M0  220415 LN  IBM ILE COBOL                 VZCOBOL/STAUDR2I         XASSIST    04/24/26 11:35:09        Page      2
+
+                                     S o u r c e
+
+  STMT PL SEQNBR -A 1 B..+....2....+....3....+....4....+....5....+....6....+....7..IDENTFCN  S COPYNAME   CHG DATE
+
+
+           000100
+           000200******************************************************************
+           000300*
+           000400*   Údržba stavového souboru s volbami a oknem
+           000500*   se strukturami obrazovky bez překryvů
+           000600*                            - v DDS je INDARA (indicator area)
+           000700*
+           000800*     ASSIGN ... přidá se -SI.
+           000900*     Indikátory obrazovky jsou ve zvláštní struktuře mimo data:
+           001000*     01  STAVY4I-INDICS.
+           001100*         COPY DDS-ALL-FORMATS-INDIC OF STAVY4I.
+           001200*     Indikátory se nastavují a testují přímo v této struktuře.
+           001300*
+           001400*     Příkazy WRITE a READ mají přidanou frázi INDICATORS ARE ...
+           001500*
+           001600******************************************************************
+           001700
+     2     001800 ENVIRONMENT DIVISION.
+     3     001900 INPUT-OUTPUT SECTION.
+     4     002000 FILE-CONTROL.
+           002100
+           002200*   Obrazovkový soubor STAVY4I
+           002300*   --------------------------
+     5     002400     SELECT STAVY4I,
+     6     002500            ASSIGN TO WORKSTATION-STAVY4I-SI,
+     7     002600            ACCESS MODE IS DYNAMIC,
+     8     002700            RELATIVE KEY IS RRN,
+     9     002800            ORGANIZATION IS TRANSACTION.
+           002900
+           003000*   Fyzický soubor STAVY
+           003100*   --------------------
+    10     003200     SELECT STAVY ASSIGN TO DATABASE-STAVY,
+    12     003300            ACCESS IS DYNAMIC,
+    13     003400            ORGANIZATION IS INDEXED,
+    14     003500            RECORD KEY IS EXTERNALLY-DESCRIBED-KEY.
+           003600
+           003700
+    15     003800 DATA DIVISION.
+           003900
+    16     004000 FILE SECTION.
+           004100
+           004200*   Obrazovkový soubor STAVY4I - Popis dat
+           004300*   --------------------------------------
+    17     004400 FD  STAVY4I.
+    18     004500 01  FORMATY.
+           004600     COPY DDS-DATASF-I   OF STAVY4I.
+          +000001*  INPUT FORMAT:DATASF     FROM FILE STAVY4I    OF LIBRARY VZCOBOL            DATASF
+          +000002*                                                                             DATASF
+    19    +000003       05  DATASF-I.                                                          DATASF
+    20    +000004           06 VOLBA                 PIC X(1).                                 DATASF
+    21    +000005           06 ZAVOD                 PIC X(2).                                 DATASF
+          +000006*                  Zav                                                        DATASF
+    22    +000007           06 SKLAD                 PIC X(2).                                 DATASF
+          +000008*                  Skl                                                        DATASF
+    23    +000009           06 MATER                 PIC X(5).                                 DATASF
+          +000010*                  Cislo mater.                                               DATASF
+    24    +000011           06 MNOZ                  PIC S9(8).                                DATASF
+          +000012*                  Množstvi ve skladu                                         DATASF
+           004700     COPY DDS-DATASF-O   OF STAVY4I.
+
+ 5770WDS V7R5M0  220415 LN  IBM ILE COBOL                 VZCOBOL/STAUDR2I         XASSIST    04/24/26 11:35:09        Page      3
+
+  STMT PL SEQNBR -A 1 B..+....2....+....3....+....4....+....5....+....6....+....7..IDENTFCN  S COPYNAME   CHG DATE
+
+
+          +000001* OUTPUT FORMAT:DATASF     FROM FILE STAVY4I    OF LIBRARY VZCOBOL            DATASF
+          +000002*                                                                             DATASF
+    25    +000003       05  DATASF-O.                                                          DATASF
+    26    +000004           06 VOLBA                 PIC X(1).                                 DATASF
+    27    +000005           06 ZAVOD                 PIC X(2).                                 DATASF
+          +000006*                  Zav                                                        DATASF
+    28    +000007           06 SKLAD                 PIC X(2).                                 DATASF
+          +000008*                  Skl                                                        DATASF
+    29    +000009           06 MATER                 PIC X(5).                                 DATASF
+          +000010*                  Cislo mater.                                               DATASF
+    30    +000011           06 MNOZ                  PIC S9(8).                                DATASF
+          +000012*                  Množstvi ve skladu                                         DATASF
+           004800     COPY DDS-RIDICI-I   OF STAVY4I.
+          +000001*  INPUT FORMAT:RIDICI     FROM FILE STAVY4I    OF LIBRARY VZCOBOL            RIDICI
+          +000002*                                                                             RIDICI
+    31    +000003       05  RIDICI-I.                                                          RIDICI
+    32    +000004           06 KURZOR                PIC S9(4).                                RIDICI
+           004900     COPY DDS-RIDICI-O   OF STAVY4I.
+          +000001* OUTPUT FORMAT:RIDICI     FROM FILE STAVY4I    OF LIBRARY VZCOBOL            RIDICI
+          +000002*                                                                             RIDICI
+    33    +000003       05  RIDICI-O.                                                          RIDICI
+    34    +000004           06 KURZOR                PIC S9(4).                                RIDICI
+           005000     COPY DDS-OKNONOVA-I OF STAVY4I.
+          +000001*  INPUT FORMAT:OKNONOVA   FROM FILE STAVY4I    OF LIBRARY VZCOBOL            OKNONOVA
+          +000002*                                                                             OKNONOVA
+    35    +000003       05  OKNONOVA-I.                                                        OKNONOVA
+    36    +000004           06 ZAVOD                 PIC X(2).                                 OKNONOVA
+          +000005*                  Zav                                                        OKNONOVA
+    37    +000006           06 SKLAD                 PIC X(2).                                 OKNONOVA
+          +000007*                  Skl                                                        OKNONOVA
+    38    +000008           06 MATER                 PIC X(5).                                 OKNONOVA
+          +000009*                  Cislo mater.                                               OKNONOVA
+    39    +000010           06 MNOZ                  PIC S9(8).                                OKNONOVA
+          +000011*                  Množstvi ve skladu                                         OKNONOVA
+           005100     COPY DDS-OKNONOVA-O OF STAVY4I.
+          +000001* OUTPUT FORMAT:OKNONOVA   FROM FILE STAVY4I    OF LIBRARY VZCOBOL            OKNONOVA
+          +000002*                                                                             OKNONOVA
+    40    +000003       05  OKNONOVA-O.                                                        OKNONOVA
+    41    +000004           06 ZAVOD                 PIC X(2).                                 OKNONOVA
+          +000005*                  Zav                                                        OKNONOVA
+    42    +000006           06 SKLAD                 PIC X(2).                                 OKNONOVA
+          +000007*                  Skl                                                        OKNONOVA
+    43    +000008           06 MATER                 PIC X(5).                                 OKNONOVA
+          +000009*                  Cislo mater.                                               OKNONOVA
+    44    +000010           06 MNOZ                  PIC S9(8).                                OKNONOVA
+          +000011*                  Množstvi ve skladu                                         OKNONOVA
+           005200     COPY DDS-OKNOOPR-I  OF STAVY4I.
+          +000001*  INPUT FORMAT:OKNOOPR    FROM FILE STAVY4I    OF LIBRARY VZCOBOL            OKNOOPR
+          +000002*                                                                             OKNOOPR
+    45    +000003       05  OKNOOPR-I.                                                         OKNOOPR
+    46    +000004           06 MNOZ                  PIC S9(8).                                OKNOOPR
+          +000005*                  Množstvi ve skladu                                         OKNOOPR
+           005300     COPY DDS-OKNOOPR-O  OF STAVY4I.
+          +000001* OUTPUT FORMAT:OKNOOPR    FROM FILE STAVY4I    OF LIBRARY VZCOBOL            OKNOOPR
+          +000002*                                                                             OKNOOPR
+    47    +000003       05  OKNOOPR-O.                                                         OKNOOPR
+    48    +000004           06 ZAVOD                 PIC X(2).                                 OKNOOPR
+          +000005*                  Zav                                                        OKNOOPR
+    49    +000006           06 SKLAD                 PIC X(2).                                 OKNOOPR
+          +000007*                  Skl                                                        OKNOOPR
+    50    +000008           06 MATER                 PIC X(5).                                 OKNOOPR
+
+ 5770WDS V7R5M0  220415 LN  IBM ILE COBOL                 VZCOBOL/STAUDR2I         XASSIST    04/24/26 11:35:09        Page      4
+
+  STMT PL SEQNBR -A 1 B..+....2....+....3....+....4....+....5....+....6....+....7..IDENTFCN  S COPYNAME   CHG DATE
+
+
+          +000009*                  Cislo mater.                                               OKNOOPR
+    51    +000010           06 MNOZ                  PIC S9(8).                                OKNOOPR
+          +000011*                  Množstvi ve skladu                                         OKNOOPR
+           005400
+           005500*   Fyzický soubor STAVY - Popis dat
+           005600*   --------------------------------
+    52     005700 FD  STAVY.
+    53     005800 01  STAVYR.
+           005900     COPY DDS-ALL-FORMATS OF STAVY.
+    54    +000001       05  STAVY-RECORD PIC X(14).                                            <-ALL-FMTS
+          +000002*    I-O FORMAT:STAVYF0    FROM FILE STAVY      OF LIBRARY VZCOBOL            <-ALL-FMTS
+          +000003*                                                                             <-ALL-FMTS
+          +000004*THE KEY DEFINITIONS FOR RECORD FORMAT  STAVYF0                               <-ALL-FMTS
+          +000005*  NUMBER               NAME                RETRIEVAL       ALTSEQ            <-ALL-FMTS
+          +000006*   0001   ZAVOD                            ASCENDING         YES             <-ALL-FMTS
+          +000007*   0002   SKLAD                            ASCENDING         YES             <-ALL-FMTS
+          +000008*   0003   MATER                            ASCENDING         YES             <-ALL-FMTS
+    55    +000009       05  STAVYF0       REDEFINES STAVY-RECORD.                              <-ALL-FMTS
+    56    +000010           06 ZAVOD                 PIC X(2).                                 <-ALL-FMTS
+          +000011*                  Zav                                                        <-ALL-FMTS
+    57    +000012           06 SKLAD                 PIC X(2).                                 <-ALL-FMTS
+          +000013*                  Skl                                                        <-ALL-FMTS
+    58    +000014           06 MATER                 PIC X(5).                                 <-ALL-FMTS
+          +000015*                  Cislo mater.                                               <-ALL-FMTS
+    59    +000016           06 MNOZ                  PIC S9(8)         COMP-3.                 <-ALL-FMTS
+          +000017*                  Množstvi ve skladu                                         <-ALL-FMTS
+           006000
+    60     006100 WORKING-STORAGE SECTION.
+           006200
+    61     006300 01  END-OF-FILE                   PIC X value spaces.
+    62     006400       88 EOF                                   value is "E".
+    63     006500       88 NOT-EOF                               value is " ".
+           006600
+           006700*   Pořadové číslo pro záznamy subfajlu - čítač
+    64     006800 77 RRN                            PIC 9(05)    VALUE ZEROS.
+           006900
+           007000*   Hodnoty indikátorů - zapnuto/vypnuto
+    65     007100 77 IND-ON                         PIC 1        VALUE B"1".
+    66     007200 77 IND-OFF                        PIC 1        VALUE B"0".
+           007300
+           007400*   Indikátory obrazovky ve zvláštních strukturách oddělených od dat
+    67     007500 01  STAVY4I-INDICS.
+           007600     COPY DDS-DATASF-I-INDIC  OF STAVY4I.
+          +000001*  INPUT FORMAT:DATASF     FROM FILE STAVY4I    OF LIBRARY VZCOBOL            DATASF
+          +000002*                                                                             DATASF
+    68    +000003       05  DATASF-I.                                                          DATASF
+    69    +000004           06 DATASF-I-INDIC.                                                 DATASF
+    70    +000005                07 IN03             PIC 1  INDIC 03.                          DATASF
+          +000006*                          Konec                                              DATASF
+    71    +000007                07 IN25             PIC 1  INDIC 25.                          DATASF
+          +000008*                          Page Up                                            DATASF
+    72    +000009                07 IN26             PIC 1  INDIC 26.                          DATASF
+          +000010*                          Page Down                                          DATASF
+           007700     COPY DDS-DATASF-O-INDIC  OF STAVY4I.
+          +000001* OUTPUT FORMAT:DATASF     FROM FILE STAVY4I    OF LIBRARY VZCOBOL            DATASF
+          +000002*                                                                             DATASF
+    73    +000003       05  DATASF-O.                                                          DATASF
+    74    +000004           06 DATASF-O-INDIC.                                                 DATASF
+    75    +000005                07 IN80             PIC 1  INDIC 80.                          DATASF
+           007800     COPY DDS-RIDICI-I-INDIC  OF STAVY4I.
+          +000001*  INPUT FORMAT:RIDICI     FROM FILE STAVY4I    OF LIBRARY VZCOBOL            RIDICI
+
+ 5770WDS V7R5M0  220415 LN  IBM ILE COBOL                 VZCOBOL/STAUDR2I         XASSIST    04/24/26 11:35:09        Page      5
+
+  STMT PL SEQNBR -A 1 B..+....2....+....3....+....4....+....5....+....6....+....7..IDENTFCN  S COPYNAME   CHG DATE
+
+
+          +000002*                                                                             RIDICI
+    76    +000003       05  RIDICI-I.                                                          RIDICI
+    77    +000004           06 RIDICI-I-INDIC.                                                 RIDICI
+    78    +000005                07 IN03             PIC 1  INDIC 03.                          RIDICI
+          +000006*                          Konec                                              RIDICI
+    79    +000007                07 IN05             PIC 1  INDIC 05.                          RIDICI
+          +000008*                          Obnova                                             RIDICI
+    80    +000009                07 IN06             PIC 1  INDIC 06.                          RIDICI
+          +000010*                          Nový záznam                                        RIDICI
+    81    +000011                07 IN25             PIC 1  INDIC 25.                          RIDICI
+          +000012*                          Page Up                                            RIDICI
+    82    +000013                07 IN26             PIC 1  INDIC 26.                          RIDICI
+          +000014*                          Page Down                                          RIDICI
+           007900     COPY DDS-RIDICI-O-INDIC  OF STAVY4I.
+          +000001* OUTPUT FORMAT:RIDICI     FROM FILE STAVY4I    OF LIBRARY VZCOBOL            RIDICI
+          +000002*                                                                             RIDICI
+    83    +000003       05  RIDICI-O.                                                          RIDICI
+    84    +000004           06 RIDICI-O-INDIC.                                                 RIDICI
+    85    +000005                07 IN51             PIC 1  INDIC 51.                          RIDICI
+    86    +000006                07 IN56             PIC 1  INDIC 56.                          RIDICI
+    87    +000007                07 IN81             PIC 1  INDIC 81.                          RIDICI
+           008000     COPY DDS-OKNONOVA-I-INDIC OF STAVY4I.
+          +000001*  INPUT FORMAT:OKNONOVA   FROM FILE STAVY4I    OF LIBRARY VZCOBOL            OKNONOVA
+          +000002*                                                                             OKNONOVA
+    88    +000003       05  OKNONOVA-I.                                                        OKNONOVA
+    89    +000004           06 OKNONOVA-I-INDIC.                                               OKNONOVA
+    90    +000005                07 IN03             PIC 1  INDIC 03.                          OKNONOVA
+          +000006*                          Konec                                              OKNONOVA
+    91    +000007                07 IN12             PIC 1  INDIC 12.                          OKNONOVA
+          +000008*                          Návrat                                             OKNONOVA
+    92    +000009                07 IN25             PIC 1  INDIC 25.                          OKNONOVA
+          +000010*                          Page Up                                            OKNONOVA
+    93    +000011                07 IN26             PIC 1  INDIC 26.                          OKNONOVA
+          +000012*                          Page Down                                          OKNONOVA
+           008100     COPY DDS-OKNONOVA-O-INDIC OF STAVY4I.
+          +000001* OUTPUT FORMAT:OKNONOVA   FROM FILE STAVY4I    OF LIBRARY VZCOBOL            OKNONOVA
+          +000002*                                                                             OKNONOVA
+    94    +000003       05  OKNONOVA-O.                                                        OKNONOVA
+    95    +000004           06 OKNONOVA-O-INDIC.                                               OKNONOVA
+    96    +000005                07 IN82             PIC 1  INDIC 82.                          OKNONOVA
+           008200     COPY DDS-OKNOOPR-I-INDIC OF STAVY4I.
+          +000001*  INPUT FORMAT:OKNOOPR    FROM FILE STAVY4I    OF LIBRARY VZCOBOL            OKNOOPR
+          +000002*                                                                             OKNOOPR
+    97    +000003       05  OKNOOPR-I.                                                         OKNOOPR
+    98    +000004           06 OKNOOPR-I-INDIC.                                                OKNOOPR
+    99    +000005                07 IN03             PIC 1  INDIC 03.                          OKNOOPR
+          +000006*                          Konec                                              OKNOOPR
+   100    +000007                07 IN12             PIC 1  INDIC 12.                          OKNOOPR
+          +000008*                          Navrat                                             OKNOOPR
+   101    +000009                07 IN25             PIC 1  INDIC 25.                          OKNOOPR
+          +000010*                          Page Up                                            OKNOOPR
+   102    +000011                07 IN26             PIC 1  INDIC 26.                          OKNOOPR
+          +000012*                          Page Down                                          OKNOOPR
+           008300*    COPY DDS-OKNOOPR-O-INDIC OF STAVY4I.
+           008400
+           008500*01  INDIKATORY-RIDICI.
+           008600*   05   IN03                      PICTURE 1 INDIC 03.
+           008700*      88   KONEC                               VALUE IS B"1".
+           008800*      88   NENI-KONEC                          VALUE IS B"0".
+           008900*   05   IN12                      PICTURE 1 INDIC 12.
+           009000*      88   NAVRAT                              VALUE IS B"1".
+
+ 5770WDS V7R5M0  220415 LN  IBM ILE COBOL                 VZCOBOL/STAUDR2I         XASSIST    04/24/26 11:35:09        Page      6
+
+  STMT PL SEQNBR -A 1 B..+....2....+....3....+....4....+....5....+....6....+....7..IDENTFCN  S COPYNAME   CHG DATE
+
+
+           009100*      88   NENI-NAVRAT                         VALUE IS B"0".
+           009200*   05   IN06                      PICTURE 1 INDIC 06.
+           009300*      88   NOVY-ZAZNAM                         VALUE IS B"1".
+           009400*      88   NENI-NOVY-ZAZNAM                    VALUE IS B"0".
+           009500*   05   IN51                      PICTURE 1 INDIC 51.
+           009600*      88   ZOBRAZIM                            VALUE IS B"1".
+           009700*      88   NEZOBRAZIM                          VALUE IS B"0".
+           009800*   05   IN56                      PICTURE 1 INDIC 56.
+           009900*      88   CISTIM                              VALUE IS B"1".
+           010000*      88   NECISTIM                            VALUE IS B"0".
+           010100*
+           010200*01  INDIKATORY-CHYB.
+           010300*   05   IN80                      PICTURE 1 INDIC 80.
+           010400*      88   CHYBNA-VOLBA                        VALUE IS B"1".
+           010500*      88   SPRAVNA-VOLBA                       VALUE IS B"0".
+           010600*   05   IN81                      PICTURE 1 INDIC 81.
+           010700*      88   CHYBA-V-DATECH                      VALUE IS B"1".
+           010800*      88   SPRAVNA-DATA                        VALUE IS B"0".
+           010900*   05   IN82                      PICTURE 1 INDIC 82.
+           011000*      88   EXISTUJE                            VALUE IS B"1".
+           011100*      88   NEEXISTUJE                          VALUE IS B"0".
+           011200
+           011300*   Pořadové číslo pro záznamy subfajlu - kurzor (ukazatel na řádek)
+           011400*77 KURZOR-PRAC                    PIC 9(05)    VALUE ZEROS.
+           011500*   Příznak zrušení stavového záznamu
+   103     011600 77 PRIZNAK-ZRUSENI                PIC 1        VALUE IS B"0".
+   104     011700    88   ZRUSENO                                VALUE IS B"1".
+   105     011800    88   NEZRUSENO                              VALUE IS B"0".
+           011900
+           012000
+   106     012100 PROCEDURE DIVISION.
+           012200
+           012300*-------------------------------------------------------------------------
+           012400*    Hlavní programová sekce
+           012500*-------------------------------------------------------------------------
+           012600
+           012700 Hlavni-sekce SECTION.
+           012800*       Otevřu soubory
+           012900*       --------------
+   107     013000     Open I-O STAVY4I.
+   108     013100     Open I-O STAVY.
+           013200
+           013300*       Nastavím pomocnou paměť pro kurzor do subfajlu.
+           013400*       Nesmí být 0.
+           013500*    Move 1 to KURZOR-PRAC.
+           013600*       Provedu sekci, kde se naplní subfajl
+   109     013700     Perform PLNENI-SUBFAJLU.
+           013800*       Kurzor nastavím na 1 (musí být 1 až počet záznamů v subfajlu)
+   110     013900     Move 1 to KURZOR of RIDICI-O.
+           014000
+           014100
+           014200*       Zobrazím záhlaví a subfajl a čekám na vstup z klávesnice
+           014300*       --------------------------------------------------------
+           014400 ZOBRAZIT-ZNOVU.
+           014500
+           014600*       Jestliže byl zrušen aspoň jeden záznam, naplním znovu subfajl
+   111     014700     If ZRUSENO
+   112     014800        Perform PLNENI-SUBFAJLU
+           014900*          Kurzor nastavím na 1 po zrušení záznamu stavů
+           015000*       Move 1 to KURZOR-PRAC
+   113     015100        Move 1 to KURZOR of RIDICI-O
+
+ 5770WDS V7R5M0  220415 LN  IBM ILE COBOL                 VZCOBOL/STAUDR2I         XASSIST    04/24/26 11:35:09        Page      7
+
+  STMT PL SEQNBR -A 1 B..+....2....+....3....+....4....+....5....+....6....+....7..IDENTFCN  S COPYNAME   CHG DATE
+
+
+           015200     End-if.
+           015300*       Pozor! proměnná KURZOR v RIDICI-O se překrývá s DATASF.
+           015400*       Proto je zvolena pracovní paměť KURZOR-PRAC.
+           015500*    Move KURZOR-PRAC to KURZOR of RIDICI-O.
+           015600
+           015700*       Zapnu indikátor povolující zobrazení subfajlu
+   114     015800     If RRN > 0
+           015900*       Set ZOBRAZIM to TRUE,
+           016000*       Move corr INDIKATORY-RIDICI to RIDICI-O-INDIC,
+   115     016100        Move IND-ON to IN51 of RIDICI-O-INDIC,
+           016200     End-if.
+           016300
+           016400*       Zobrazím záhlaví a subfajl a čekám na vstup z klávesnice
+   116     016500     Write FORMATY format is "NAVOD".
+   117     016600     Write FORMATY from RIDICI-O of STAVY4I format is "RIDICI"
+           016700                    indicators are RIDICI-O-INDIC.
+   118     016800     Read STAVY4I record into RIDICI-I of STAVY4I
+           016900                    format is "RIDICI"
+           017000                    indicators are RIDICI-I-INDIC.
+           017100
+           017200*???    Přečtu vstupní indikátory do indikátorové struktury
+           017300*???    ze vstupní datové struktury řídicího formátu
+           017400*??? Move corr RIDICI-I-INDIC to INDIKATORY-RIDICI.
+           017500
+           017600*       Po stisku klávesy F3 končím
+   119     017700     If IN03 in RIDICI-I-INDIC = IND-ON Stop run.
+           017800
+           017900*       Po stisku klávesy F6 vytvořím nový záznam stavů
+   121     018000     If IN06 in RIDICI-I-INDIC = IND-ON
+   122     018100         Perform NOVA
+   123     018200         Perform PLNENI-SUBFAJLU
+   124     018300         Move 1 to KURZOR of RIDICI-O
+   125     018400         Go to ZOBRAZIT-ZNOVU
+           018500     End-if.
+           018600
+           018700*       Po stisku klávesy ENTER zpracuji změněné záznamy subfajlu
+   126     018800     Set NOT-EOF, NEZRUSENO to TRUE.
+           018900*??? Set SPRAVNA-DATA, SPRAVNA-VOLBA to TRUE.
+   127     019000     Move IND-OFF to IN81 in RIDICI-O-INDIC.
+   128     019100     Move IND-OFF to IN80 in DATASF-O-INDIC.
+   129     019200        Move 1   to KURZOR of RIDICI-O
+           019300
+           019400*       Čtu první změněný záznam subfajlu
+   130     019500     Read subfile STAVY4I modified into DATASF-I of STAVY4I
+           019600                   format "DATASF"
+           019700                   indicators are DATASF-I-INDIC
+   131     019800                   at end set EOF to TRUE.
+           019900
+           020000*       Cyklus do konce změněných záznamů subfajlu
+   132     020100     Perform until EOF
+           020200*          Kontrola pole VOLBA na 2, 4 nebo mezera
+   133     020300        Perform KONTROLA,
+           020400*          Když je VOLBA správná, provedu akci 2 (oprava) nebo 4 (zrušení)
+   134     020500        If IN80 in DATASF-O-INDIC = IND-OFF Then
+   135     020600            If VOLBA of DATASF-I = "2" Then
+   136     020700               Perform OPRAVA
+   137     020800               Move SPACE to VOLBA of DATASF-O
+           020900*                 Přepíšu záznam subfajlu - promítnou se změny
+   138     021000               Rewrite subfile FORMATY from DATASF-O of STAVY4I
+           021100                       format is "DATASF" End-rewrite
+           021200            Else
+
+ 5770WDS V7R5M0  220415 LN  IBM ILE COBOL                 VZCOBOL/STAUDR2I         XASSIST    04/24/26 11:35:09        Page      8
+
+  STMT PL SEQNBR -A 1 B..+....2....+....3....+....4....+....5....+....6....+....7..IDENTFCN  S COPYNAME   CHG DATE
+
+
+   139     021300            If VOLBA of DATASF-I = "4" Then
+   140     021400               Perform ZRUSENI,
+   141     021500               Set ZRUSENO to TRUE,
+           021600            Else
+   142     021700            If VOLBA of DATASF-I = " " Then
+           021800*              Initialize INDIKATORY-CHYB
+           021900*              Move corr INDIKATORY-CHYB to DATASF-O-INDIC
+   143     022000               Move corr DATASF-I of STAVY4I
+           022100                         to DATASF-O of STAVY4I
+                 *** CORRESPONDING items for statement 143:
+                 ***     VOLBA
+                 ***     ZAVOD
+                 ***     SKLAD
+                 ***     MATER
+                 ***     MNOZ
+                 *** End of CORRESPONDING items for statement 143
+   144     022200               Rewrite subfile FORMATY from DATASF-O of STAVY4I
+           022300                               format is "DATASF" End-rewrite
+           022400            End-if
+           022500            End-if
+           022600            End-if
+           022700        Else
+           022800*          Chybné pole VOLBA - přepíšu záznam subfajlu
+   145     022900        If IN80 in DATASF-O-INDIC = IND-ON Then
+           023000*             Nastavím chybové indikátory v subfajlu a v řídicím formátu
+           023100*          Move corr INDIKATORY-CHYB to DATASF-O-INDIC
+   146     023200           Move corr DATASF-I of STAVY4I
+           023300                              to DATASF-O of STAVY4I
+                 *** CORRESPONDING items for statement 146:
+                 ***     VOLBA
+                 ***     ZAVOD
+                 ***     SKLAD
+                 ***     MATER
+                 ***     MNOZ
+                 *** End of CORRESPONDING items for statement 146
+           023400*             Přepíšu záznam subfajlu - promítnou se změny
+   147     023500           Rewrite subfile FORMATY from DATASF-O of STAVY4I
+           023600                           format is "DATASF" End-rewrite
+           023700        End-if
+           023800        End-if
+           023900*          Pořadové číslo naposled změněného záznamu v subfajlu
+           024000*          si pamatuji v proměnné KURZOR-PRAC (ne přímo KURZOR!)
+           024100*       Move RRN to KURZOR-PRAC
+           024200*          Určím pořadové číslo naposled změněného záznamu subfajlu
+   148     024300        Move RRN to KURZOR of RIDICI-O
+           024400
+           024500*          Čtu další změněný záznam subfajlu
+   149     024600        Read subfile STAVY4I modified into DATASF-I of STAVY4I
+           024700                      format "DATASF"
+           024800                      indicators are DATASF-O-INDIC
+   150     024900                      at end set EOF to TRUE End-read,
+           025000*       Konec cyklu přes změněné záznamy subfajlu
+           025100     End-perform.
+           025200
+           025300*       Vrátím se na nové zobrazení subfajlu s řídicím formátem
+   151     025400     Go to ZOBRAZIT-ZNOVU.
+           025500
+           025600*-------------------------------------------------------------------------
+           025700*    Sekce PLNENI-SUBFAJLU, kde se plní subfajl
+           025800*-------------------------------------------------------------------------
+           025900 PLNENI-SUBFAJLU SECTION.
+
+ 5770WDS V7R5M0  220415 LN  IBM ILE COBOL                 VZCOBOL/STAUDR2I         XASSIST    04/24/26 11:35:09        Page      9
+
+  STMT PL SEQNBR -A 1 B..+....2....+....3....+....4....+....5....+....6....+....7..IDENTFCN  S COPYNAME   CHG DATE
+
+
+           026000*       Vymažu data ze subfajlu
+   152     026100     Move IND-ON to IN56 in RIDICI-O-INDIC of RIDICI-O
+           026200                                           of STAVY4I-INDICS.
+   153     026300     Write FORMATY from RIDICI-O of STAVY4I format is "RIDICI"
+           026400                   indicators are RIDICI-O-INDIC.
+   154     026500     Move IND-OFF to IN56 in RIDICI-O-INDIC of RIDICI-O
+           026600                                            of STAVY4I-INDICS.
+           026700*       Vypnu indikátory chyb v subfajlu
+   155     026800     Move IND-OFF to IN80 in DATASF-O-INDIC.
+           026900*       Smažu pole VOLBA
+   156     027000     Move SPACE  to VOLBA of DATASF-O.
+           027100*       Vynuluji čítač záznamů subfajlu
+   157     027200     Move 0 to RRN.
+           027300*       Vypnu příznak konce souboru (subfajlu)
+   158     027400     Set NOT-EOF to TRUE.
+           027500
+           027600*       Čtu PRVNÍ záznam souboru STAVY
+   159     027700     Read STAVY FIRST record NO LOCK at end set EOF to TRUE.
+           027800
+           027900*       Cyklus do konce souboru STAVY
+   161     028000     Perform until EOF,
+           028100*          Zvýším pořadové číslo pro zápis do subfajlu
+   162     028200        Add 1 to RRN,
+           028300*          Data ze souboru STAVY přesunu do subfajlu
+   163     028400        Move corr STAVYF0 to DATASF-O of STAVY4I,
+                 *** CORRESPONDING items for statement 163:
+                 ***     ZAVOD
+                 ***     SKLAD
+                 ***     MATER
+                 ***     MNOZ
+                 *** End of CORRESPONDING items for statement 163
+           028500*          Zapíšu záznam do subfajlu podle pořadového čísla RRN
+   164     028600        Write subfile FORMATY from DATASF-O of STAVY4I
+           028700                      format is "DATASF"
+           028800                      indicators are DATASF-O-INDIC
+           028900*          Čtu DALŠÍ záznam se souboru STAVY
+   165     029000        Read STAVY NEXT record NO LOCK at end set EOF to TRUE
+           029100           End-read,
+           029200     End-perform.
+           029300
+           029400*-------------------------------------------------------------------------
+           029500*    OPRAVA - sekce, kde se přes okno opraví záznam souboru STAVY
+           029600*-------------------------------------------------------------------------
+           029700 OPRAVA SECTION.
+           029800*       Nastavím klíč pro stavový záznam
+   167     029900     Move corresponding DATASF-I of STAVY4I to STAVYF0.
+                 *** CORRESPONDING items for statement 167:
+                 ***     ZAVOD
+                 ***     SKLAD
+                 ***     MATER
+                 ***     MNOZ
+                 *** End of CORRESPONDING items for statement 167
+           030000*       Přesunu data ze záznamu stavů do okna
+   168     030100     Move corresponding STAVYF0 to OKNOOPR-O.
+                 *** CORRESPONDING items for statement 168:
+                 ***     ZAVOD
+                 ***     SKLAD
+                 ***     MATER
+                 ***     MNOZ
+                 *** End of CORRESPONDING items for statement 168
+           030200*       Zobrazím okno a čtu vstunpní data
+
+ 5770WDS V7R5M0  220415 LN  IBM ILE COBOL                 VZCOBOL/STAUDR2I         XASSIST    04/24/26 11:35:09        Page     10
+
+  STMT PL SEQNBR -A 1 B..+....2....+....3....+....4....+....5....+....6....+....7..IDENTFCN  S COPYNAME   CHG DATE
+
+
+   169     030300     Write FORMATY from OKNOOPR-O of STAVY4I format is "OKNOOPR".
+   170     030400     Read STAVY4I into OKNOOPR-I of STAVY4I format is "OKNOOPR"
+           030500                   indicators are OKNOOPR-I-INDIC.
+           030600*???    Přečtu vstupní indikátory
+           030700*??? Move corr OKNOOPR-I-INDIC to INDIKATORY-RIDICI.
+           030800*       Po klávese F3 končím program
+           030900*??? If KONEC Stop run.
+   171     031000     If IN03 in OKNOOPR-I-INDIC = IND-ON Stop run.
+           031100*       Po klávese F12 končím sekci
+           031200*??? If NAVRAT Go to KONEC-OPRAVA.
+   173     031300     If IN12 in OKNOOPR-I-INDIC = IND-ON Go to KONEC-OPRAVA.
+           031400
+           031500*    Po klávese ENTER přepíšu záznam stavů
+   175     031600     Read STAVY invalid key continue End-read.
+           031700*       Přepíšu množství ve stavech
+   177     031800     Move corr OKNOOPR-I of STAVY4I to STAVYF0.
+                 *** CORRESPONDING items for statement 177:
+                 ***     MNOZ
+                 *** End of CORRESPONDING items for statement 177
+           031900*       Přepíšu záznam v souboru STAVY
+   178     032000     Rewrite STAVYR  invalid key continue End-rewrite.
+           032100  KONEC-OPRAVA.
+   180     032200     Move corr STAVYF0 to DATASF-O of STAVY4I.
+                 *** CORRESPONDING items for statement 180:
+                 ***     ZAVOD
+                 ***     SKLAD
+                 ***     MATER
+                 ***     MNOZ
+                 *** End of CORRESPONDING items for statement 180
+           032300
+           032400*-------------------------------------------------------------------------
+           032500*    NOVA - sekce, kde se přes okno vytvoří nový záznam souboru STAVY
+           032600*-------------------------------------------------------------------------
+           032700 NOVA SECTION.
+   181     032800     Initialize OKNONOVA-O of FORMATY.
+           032900 ZNOVU-NOVA.
+   182     033000     Write FORMATY from OKNONOVA-O of STAVY4I format is "OKNONOVA"
+           033100                    indicators are OKNONOVA-O-INDIC.
+   183     033200     Read STAVY4I into OKNONOVA-I of STAVY4I format is "OKNONOVA"
+           033300                    indicators are OKNONOVA-I-INDIC.
+           033400*??? Move corr OKNONOVA-I-INDIC to INDIKATORY-RIDICI.
+           033500*       Po klávese F3 končím program
+           033600*??? If KONEC Stop run.
+   184     033700     If IN03 in OKNONOVA-I-INDIC = IND-ON Stop run.
+           033800*       Po klávese F12 končím sekci
+           033900*??? If NAVRAT Go to KONEC-NOVA.
+   186     034000     If IN12 in OKNONOVA-I-INDIC = IND-ON Go to KONEC-NOVA.
+           034100
+           034200*    Po klávese ENTER zapíšu nový záznam stavů
+           034300*       Nastavím klíč a čtu stavový záznam
+   188     034400     Move corr OKNONOVA-I of STAVY4I to STAVYF0,
+                 *** CORRESPONDING items for statement 188:
+                 ***     ZAVOD
+                 ***     SKLAD
+                 ***     MATER
+                 ***     MNOZ
+                 *** End of CORRESPONDING items for statement 188
+           034500*       Zapíšu nový záznam do souboru STAVY
+   189     034600     Write STAVYR  invalid key
+           034700*          Existuje-li vkládaný záznam, zapnu chybové indikátory
+           034800*          a opakuji zobrazení okna
+
+ 5770WDS V7R5M0  220415 LN  IBM ILE COBOL                 VZCOBOL/STAUDR2I         XASSIST    04/24/26 11:35:09        Page     11
+
+  STMT PL SEQNBR -A 1 B..+....2....+....3....+....4....+....5....+....6....+....7..IDENTFCN  S COPYNAME   CHG DATE
+
+
+   190     034900        Move corr STAVYF0 to OKNONOVA-O of STAVY4I
+                 *** CORRESPONDING items for statement 190:
+                 ***     ZAVOD
+                 ***     SKLAD
+                 ***     MATER
+                 ***     MNOZ
+                 *** End of CORRESPONDING items for statement 190
+           035000*???    Set EXISTUJE to TRUE
+           035100*???    Move corr INDIKATORY-CHYB to OKNONOVA-O-INDIC
+   191     035200        Move IND-ON to IN82 in OKNONOVA-O-INDIC
+   192     035300        Go to ZNOVU-NOVA
+           035400     End-write.
+           035500 KONEC-NOVA.
+           035600
+           035700*-------------------------------------------------------------------------
+           035800*    ZRUSENI - sekce, kde se zruší záznam databáze STAVY
+           035900*-------------------------------------------------------------------------
+           036000 ZRUSENI SECTION.
+   193     036100     Move corresponding DATASF-I of STAVY4I to STAVYF0.
+                 *** CORRESPONDING items for statement 193:
+                 ***     ZAVOD
+                 ***     SKLAD
+                 ***     MATER
+                 ***     MNOZ
+                 *** End of CORRESPONDING items for statement 193
+   194     036200     Delete STAVY invalid key Continue.
+           036300
+           036400*-------------------------------------------------------------------------
+           036500*    KONTROLA - sekce, kde se nastaví indikátory pro pole VOLBA
+           036600*-------------------------------------------------------------------------
+           036700 KONTROLA SECTION.
+   196     036800     If VOLBA of DATASF-I not equal to "2" and
+           036900        VOLBA of DATASF-I not equal to "4" and
+           037000        VOLBA of DATASF-I not equal to " "
+           037100*???    Set CHYBNA-VOLBA, CHYBA-V-DATECH to TRUE
+   197     037200        Move IND-ON to IN80 in DATASF-O-INDIC
+   198     037300        Move IND-ON to IN81 in RIDICI-O-INDIC
+           037400     Else
+           037500*???    Set SPRAVNA-VOLBA to TRUE
+   199     037600        Move IND-OFF to IN80 in DATASF-O-INDIC
+           037700     End-if.
+
+                           * * * * *   E N D   O F   S O U R C E   * * * * *
+
+ 5770WDS V7R5M0  220415 LN  IBM ILE COBOL                 VZCOBOL/STAUDR2I         XASSIST    04/24/26 11:35:09        Page     12
+
+                                    M e s s a g e s
+
+   STMT
+
+
+*     1  MSGID: LNC0518  SEVERITY:  0  SEQNBR:  000200
+         Message . . . . :   Comment(s) found before IDENTIFICATION DIVISION
+           header. Accepted.
+
+*     2  MSGID: LNC0917  SEVERITY: 10  SEQNBR:  001800
+         Message . . . . :   COBOL reserved word or special character
+           'IDENTIFICATION' expected.  'IDENTIFICATION' assumed.
+
+*     2  MSGID: LNC0034  SEVERITY: 20  SEQNBR:  001800
+         Message . . . . :   Program-name expected; Default program-name
+           'COBOLPGM00' assumed.
+
+*     2  MSGID: LNC0810  SEVERITY: 10  SEQNBR:  001800
+         Message . . . . :   Module name 'STAUDR2I' does not match outermost
+           PROGRAM-ID name 'COBOLPGM00'. Accepted.
+
+*    18  MSGID: LNC0929  SEVERITY:  0  SEQNBR:  004600
+         Message . . . . :   The COPY statement used format 2 (DDS translate).
+
+*    24  MSGID: LNC0929  SEVERITY:  0  SEQNBR:  004700
+         Message . . . . :   The COPY statement used format 2 (DDS translate).
+
+*    30  MSGID: LNC0929  SEVERITY:  0  SEQNBR:  004800
+         Message . . . . :   The COPY statement used format 2 (DDS translate).
+
+*    32  MSGID: LNC0929  SEVERITY:  0  SEQNBR:  004900
+         Message . . . . :   The COPY statement used format 2 (DDS translate).
+
+*    34  MSGID: LNC0929  SEVERITY:  0  SEQNBR:  005000
+         Message . . . . :   The COPY statement used format 2 (DDS translate).
+
+*    39  MSGID: LNC0929  SEVERITY:  0  SEQNBR:  005100
+         Message . . . . :   The COPY statement used format 2 (DDS translate).
+
+*    44  MSGID: LNC0929  SEVERITY:  0  SEQNBR:  005200
+         Message . . . . :   The COPY statement used format 2 (DDS translate).
+
+*    46  MSGID: LNC0929  SEVERITY:  0  SEQNBR:  005300
+         Message . . . . :   The COPY statement used format 2 (DDS translate).
+
+*    67  MSGID: LNC0929  SEVERITY:  0  SEQNBR:  007600
+         Message . . . . :   The COPY statement used format 2 (DDS translate).
+
+*    72  MSGID: LNC0929  SEVERITY:  0  SEQNBR:  007700
+         Message . . . . :   The COPY statement used format 2 (DDS translate).
+
+*    75  MSGID: LNC0929  SEVERITY:  0  SEQNBR:  007800
+         Message . . . . :   The COPY statement used format 2 (DDS translate).
+
+*    82  MSGID: LNC0929  SEVERITY:  0  SEQNBR:  007900
+         Message . . . . :   The COPY statement used format 2 (DDS translate).
+
+*    87  MSGID: LNC0929  SEVERITY:  0  SEQNBR:  008000
+         Message . . . . :   The COPY statement used format 2 (DDS translate).
+
+*    93  MSGID: LNC0929  SEVERITY:  0  SEQNBR:  008100
+         Message . . . . :   The COPY statement used format 2 (DDS translate).
+
+
+ 5770WDS V7R5M0  220415 LN  IBM ILE COBOL                 VZCOBOL/STAUDR2I         XASSIST    04/24/26 11:35:09        Page     13
+
+   STMT
+
+
+*    96  MSGID: LNC0929  SEVERITY:  0  SEQNBR:  008200
+         Message . . . . :   The COPY statement used format 2 (DDS translate).
+
+*   107  MSGID: LNC0884  SEVERITY: 10  SEQNBR:  013000
+         Message . . . . :   Missing paragraph name.  Accepted.
+
+*   117  MSGID: LNC0778  SEVERITY: 20  SEQNBR:  016600
+         Message . . . . :   Identifier 'RIDICI-O OF STAVY4I' and file 'STAVY4I'
+           cannot use same storage areas. FROM phrase accepted.
+
+*   118  MSGID: LNC0407  SEVERITY: 20  SEQNBR:  016800
+         Message . . . . :   AT END phrase missing from sequential READ.
+           Accepted.
+
+*   118  MSGID: LNC0631  SEVERITY: 20  SEQNBR:  016800
+         Message . . . . :   Identifier 'RIDICI-I OF STAVY4I' and file 'STAVY4I'
+           cannot use same storage areas. INTO phrase accepted.
+
+*   130  MSGID: LNC0631  SEVERITY: 20  SEQNBR:  019500
+         Message . . . . :   Identifier 'DATASF-I OF STAVY4I' and file 'STAVY4I'
+           cannot use same storage areas. INTO phrase accepted.
+
+*   138  MSGID: LNC0412  SEVERITY: 20  SEQNBR:  021000
+         Message . . . . :   INVALID KEY phrase not found in REWRITE statement.
+           Accepted.
+
+*   138  MSGID: LNC0778  SEVERITY: 20  SEQNBR:  021000
+         Message . . . . :   Identifier 'DATASF-O OF STAVY4I' and file 'STAVY4I'
+           cannot use same storage areas. FROM phrase accepted.
+
+*   144  MSGID: LNC0412  SEVERITY: 20  SEQNBR:  022200
+         Message . . . . :   INVALID KEY phrase not found in REWRITE statement.
+           Accepted.
+
+*   144  MSGID: LNC0778  SEVERITY: 20  SEQNBR:  022200
+         Message . . . . :   Identifier 'DATASF-O OF STAVY4I' and file 'STAVY4I'
+           cannot use same storage areas. FROM phrase accepted.
+
+*   147  MSGID: LNC0412  SEVERITY: 20  SEQNBR:  023500
+         Message . . . . :   INVALID KEY phrase not found in REWRITE statement.
+           Accepted.
+
+*   147  MSGID: LNC0778  SEVERITY: 20  SEQNBR:  023500
+         Message . . . . :   Identifier 'DATASF-O OF STAVY4I' and file 'STAVY4I'
+           cannot use same storage areas. FROM phrase accepted.
+
+*   149  MSGID: LNC0631  SEVERITY: 20  SEQNBR:  024600
+         Message . . . . :   Identifier 'DATASF-I OF STAVY4I' and file 'STAVY4I'
+           cannot use same storage areas. INTO phrase accepted.
+
+*   152  MSGID: LNC0884  SEVERITY: 10  SEQNBR:  026100
+         Message . . . . :   Missing paragraph name.  Accepted.
+
+*   153  MSGID: LNC0778  SEVERITY: 20  SEQNBR:  026300
+         Message . . . . :   Identifier 'RIDICI-O OF STAVY4I' and file 'STAVY4I'
+           cannot use same storage areas. FROM phrase accepted.
+
+*   164  MSGID: LNC0412  SEVERITY: 20  SEQNBR:  028600
+         Message . . . . :   INVALID KEY phrase not found in WRITE statement.
+           Accepted.
+
+
+ 5770WDS V7R5M0  220415 LN  IBM ILE COBOL                 VZCOBOL/STAUDR2I         XASSIST    04/24/26 11:35:09        Page     14
+
+   STMT
+
+
+*   164  MSGID: LNC0778  SEVERITY: 20  SEQNBR:  028600
+         Message . . . . :   Identifier 'DATASF-O OF STAVY4I' and file 'STAVY4I'
+           cannot use same storage areas. FROM phrase accepted.
+
+*   167  MSGID: LNC0884  SEVERITY: 10  SEQNBR:  029900
+         Message . . . . :   Missing paragraph name.  Accepted.
+
+*   169  MSGID: LNC0778  SEVERITY: 20  SEQNBR:  030300
+         Message . . . . :   Identifier 'OKNOOPR-O OF STAVY4I' and file
+           'STAVY4I' cannot use same storage areas. FROM phrase accepted.
+
+*   170  MSGID: LNC0407  SEVERITY: 20  SEQNBR:  030400
+         Message . . . . :   AT END phrase missing from sequential READ.
+           Accepted.
+
+*   170  MSGID: LNC0631  SEVERITY: 20  SEQNBR:  030400
+         Message . . . . :   Identifier 'OKNOOPR-I OF STAVY4I' and file
+           'STAVY4I' cannot use same storage areas. INTO phrase accepted.
+
+*   181  MSGID: LNC0884  SEVERITY: 10  SEQNBR:  032800
+         Message . . . . :   Missing paragraph name.  Accepted.
+
+*   182  MSGID: LNC0778  SEVERITY: 20  SEQNBR:  033000
+         Message . . . . :   Identifier 'OKNONOVA-O OF STAVY4I' and file
+           'STAVY4I' cannot use same storage areas. FROM phrase accepted.
+
+*   183  MSGID: LNC0407  SEVERITY: 20  SEQNBR:  033200
+         Message . . . . :   AT END phrase missing from sequential READ.
+           Accepted.
+
+*   183  MSGID: LNC0631  SEVERITY: 20  SEQNBR:  033200
+         Message . . . . :   Identifier 'OKNONOVA-I OF STAVY4I' and file
+           'STAVY4I' cannot use same storage areas. INTO phrase accepted.
+
+*   192  MSGID: LNC0335  SEVERITY:  0  SEQNBR:  036000
+         Message . . . . :   Paragraph or section 'KONEC-NOVA' has no
+           statements.
+
+*   193  MSGID: LNC0884  SEVERITY: 10  SEQNBR:  036100
+         Message . . . . :   Missing paragraph name.  Accepted.
+
+*   196  MSGID: LNC0884  SEVERITY: 10  SEQNBR:  036800
+         Message . . . . :   Missing paragraph name.  Accepted.
+
+
+                                         Message Summary
+
+Message totals:
+   Information (00-04) . . . . . . . . :     17
+   Warning     (05-19) . . . . . . . . :      8
+   Error       (20-29) . . . . . . . . :     21
+   Severe      (30-39) . . . . . . . . :      0
+   Terminal    (40-99) . . . . . . . . :      0
+   --------------------------------------------
+   Total                                     46
+
+
+                        * * * * *   E N D   O F   M E S S A G E S   * * * * *
+
+ 5770WDS V7R5M0  220415 LN  IBM ILE COBOL                 VZCOBOL/STAUDR2I         XASSIST    04/24/26 11:35:09        Page     15
+
+
+Statistics:
+   Source records read . . . . . . . . :    377
+   Copy records read . . . . . . . . . :    152
+   Copy members processed  . . . . . . :     16
+   Sequence errors . . . . . . . . . . :      0
+   Highest severity message issued . . :     20
+
+
+  LNC0901  0  Program STAUDR2I created in library VZCOBOL on 04/24/26 at 11:35:10.
+
+                      * * * * *   E N D   O F   C O M P I L A T I O N   * * * * *
